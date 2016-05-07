@@ -3,69 +3,59 @@ extern crate tabwriter;
 use std::io::Write;
 use self::tabwriter::TabWriter;
 
-use super::tree::{DirectoryNode, FSNode};
+use super::tree::FSNode;
 
-pub fn print_tree(tree: &DirectoryNode) {
+
+
+pub fn print_tree(tree: &FSNode) {
     let mut tw = TabWriter::new(Vec::new());
+    let prefix = "".to_string();
 
-    writeln!(&mut tw,
-             "{}\t{}\t(Σ)",
-             &tree.name,
-             human_readable_byte_size(tree.size))
-        .unwrap();
-
-    let prefix = "".to_owned();
     print_tree_impl(&tree, &mut tw, &prefix);
 
     tw.flush().unwrap();
     let tabulated = String::from_utf8(tw.unwrap()).unwrap();
-    print!("{}", tabulated);
+    print!("{}", &tabulated);
 }
 
-fn print_tree_impl<T: Write>(tree: &DirectoryNode, mut tw: &mut TabWriter<T>, prefix: &String) {
+pub fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &String) {
 
-    for (idx, entry) in (&tree.children).into_iter().enumerate() {
-        let branch = if idx == tree.children.len() - 1 {
-            '└'
+    let sum_suffix = if node.is_dir() {
+        "(Σ)"
+    } else {
+        ""
+    };
+
+    writeln!(&mut tw,
+             "{}\t{}\t{}",
+             node.name(),
+             human_readable_byte_size(node.size()),
+             &sum_suffix,
+             )
+        .unwrap();
+
+    for (idx, item) in node.children().enumerate() {
+        let last = idx == (node.children().count() - 1);
+        let (branch, nested) = if last {
+            ("└", "     ")
         } else {
-            '├'
+            ("├", "│    ")
         };
 
-        match entry {
-            &FSNode::File(ref f) => {
-                writeln!(&mut tw,
-                         "{}{}── {}\t{}\t",
-                         &prefix,
-                         &branch,
-                         &f.name,
-                         human_readable_byte_size(f.size))
-                    .unwrap();
-            }
-            &FSNode::Directory(ref d) => {
+        write!(&mut tw, "{}{}─── ", &prefix, &branch).unwrap();
 
-                writeln!(&mut tw,
-                         "{}{}── {}\t{}\t(Σ)",
-                         &prefix,
-                         &branch,
-                         &d.name,
-                         human_readable_byte_size(d.size))
-                    .unwrap();
-
-                let mut new_prefix = prefix.clone();
-                if idx < tree.children.len() - 1 {
-                    new_prefix.push_str("│   ");
-                } else {
-                    new_prefix.push_str("    ");
-                }
-                print_tree_impl(&d, &mut tw, &new_prefix);
-            }
-        }
+        let new_prefix = concat(prefix, nested);
+        print_tree_impl(&item, &mut tw, &new_prefix);
     }
 }
 
+fn concat(a: &str, b: &str) -> String {
+    let mut result = a.to_string();
+    result.push_str(b);
+    return result;
+}
+
 fn human_readable_byte_size(bytes: u64) -> String {
-
-
     if bytes < 1024 {
         return format!("{}\tB", bytes);
     }
