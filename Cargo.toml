@@ -4,6 +4,7 @@ version = "0.0.1"
 authors = [ "melak47 <melak47@gmail.com>" ]
 description = "Print directory tree (like GNU tree), sorted by size"
 repository = "https://github.com/melak47/treesize-rs"
+license = "MIT"
 
 [dependencies]
 tabwriter = "0.1"
