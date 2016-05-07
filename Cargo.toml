@@ -1,0 +1,11 @@
+[package]
+
+name = "treesize"
+version = "0.0.1"
+authors = [ "melak47@gmail.com" ]
+
+[[bin]]
+name = "treesize"
+
+[dependencies]
+tabwriter = "0.1"
