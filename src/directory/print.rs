@@ -5,8 +5,6 @@ use self::tabwriter::TabWriter;
 
 use super::tree::FSNode;
 
-
-
 pub fn print_tree(tree: &FSNode) {
     let mut tw = TabWriter::new(Vec::new());
     let prefix = "".to_string();
@@ -18,7 +16,7 @@ pub fn print_tree(tree: &FSNode) {
     print!("{}", &tabulated);
 }
 
-pub fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &String) {
+fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &String) {
 
     let sum_suffix = if node.is_dir() {
         "(Σ)"
