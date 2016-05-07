@@ -34,13 +34,5 @@ pub fn read_recursive(path: &String) -> FSNode {
 }
 
 fn biggest_size_first(lhs: &FSNode, rhs: &FSNode) -> Ordering {
-    let lhs_size = match lhs {
-        &FSNode::Directory(ref d) => d.size,
-        &FSNode::File(ref f) => f.size,
-    };
-    let rhs_size = match rhs {
-        &FSNode::Directory(ref d) => d.size,
-        &FSNode::File(ref f) => f.size,
-    };
-    return rhs_size.cmp(&lhs_size);
+    return lhs.size().cmp(&rhs.size()).reverse();
 }
