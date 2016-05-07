@@ -37,12 +37,12 @@ pub fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefi
     for (idx, item) in node.children().enumerate() {
         let last = idx == (node.children().count() - 1);
         let (branch, nested) = if last {
-            ("└", "     ")
+            ("└", "    ")
         } else {
-            ("├", "│    ")
+            ("├", "│   ")
         };
 
-        write!(&mut tw, "{}{}─── ", &prefix, &branch).unwrap();
+        write!(&mut tw, "{}{}── ", &prefix, &branch).unwrap();
 
         let new_prefix = concat(prefix, nested);
         print_tree_impl(&item, &mut tw, &new_prefix);
