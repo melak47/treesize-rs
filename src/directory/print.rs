@@ -3,7 +3,7 @@ extern crate tabwriter;
 use std::io::Write;
 use self::tabwriter::TabWriter;
 
-use directory::tree::{DirectoryNode, FSNode};
+use super::tree::{DirectoryNode, FSNode};
 
 pub fn print_tree(tree: &DirectoryNode) {
     let mut tw = TabWriter::new(Vec::new());

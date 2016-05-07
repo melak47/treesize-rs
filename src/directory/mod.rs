@@ -4,7 +4,7 @@ use std::path::Path;
 
 pub mod tree;
 pub mod print;
-use directory::tree::{DirectoryNode, FileNode, FSNode};
+use self::tree::{DirectoryNode, FileNode, FSNode};
 
 pub fn read_recursive(path: &String) -> DirectoryNode {
     let path = fs::canonicalize(Path::new(&path)).unwrap();
