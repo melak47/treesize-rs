@@ -45,10 +45,6 @@ environment:
     - channel: nightly
       target: i686-pc-windows-gnu
 
-matrix:
-  allow_failures:
-    - channel: nightly
-
 install:
 - ps: .\appveyor_rust_install.ps1
 
