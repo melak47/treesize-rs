@@ -8,3 +8,4 @@ license = "MIT"
 
 [dependencies]
 tabwriter = "0.1"
+clap = "2"
