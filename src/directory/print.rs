@@ -11,8 +11,15 @@ pub fn print_tree(tree: &FSNode) {
     print_tree_impl(&tree, &mut tw, "");
 
     tw.flush().unwrap();
-    let tabulated = String::from_utf8(tw.unwrap()).unwrap();
-    print!("{}", &tabulated);
+    let bytes = tw.unwrap();
+    let tabulated = String::from_utf8_lossy(&bytes);
+
+    // avoid https://github.com/rust-lang/rust/issues/23344
+    // by wriring smaller chunks
+    // TODO: remove once 1.9 hits stable
+    for line in tabulated.split("\n") {
+        println!("{}", line);
+    }
 }
 const SUM: &'static str = "(Σ)";
 const BRANCH: &'static str = "├── ";
