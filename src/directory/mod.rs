@@ -6,7 +6,7 @@ pub mod tree;
 pub mod print;
 use self::tree::{DirectoryNode, FileNode, FSNode};
 
-pub fn read_recursive(path: &String) -> FSNode {
+pub fn read_recursive(path: &str) -> FSNode {
     let path = fs::canonicalize(Path::new(&path)).unwrap();
     let mut node = DirectoryNode::new(path.file_name().unwrap().to_str().unwrap().to_string());
 
@@ -30,9 +30,9 @@ pub fn read_recursive(path: &String) -> FSNode {
     }
 
     node.children.sort_by(biggest_size_first);
-    return FSNode::Directory(node);
+    FSNode::Directory(node)
 }
 
 fn biggest_size_first(lhs: &FSNode, rhs: &FSNode) -> Ordering {
-    return lhs.size().cmp(&rhs.size()).reverse();
+    lhs.size().cmp(&rhs.size()).reverse()
 }
