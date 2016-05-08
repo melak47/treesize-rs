@@ -15,7 +15,7 @@ pub fn read_recursive(path: &String, ignore_dotfiles: bool) -> FSNode {
         let meta = entry.metadata().unwrap();
         let name = entry.file_name().to_str().unwrap().to_string();
 
-        if ignore_dotfiles && name.starts_with(".") {
+        if ignore_dotfiles && name.starts_with('.') {
             continue;
         }
 
