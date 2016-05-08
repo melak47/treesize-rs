@@ -50,8 +50,7 @@ matrix:
     - channel: nightly
 
 install:
-- ps: Start-FileDownload 'https://raw.githubusercontent.com/starkat99/appveyor-rust/master/appveyor_rust_install.ps1'
-- .\appveyor_rust_install.ps1
+- ps: .\appveyor_rust_install.ps1
 
 build: false
 
