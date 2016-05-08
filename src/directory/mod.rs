@@ -6,7 +6,7 @@ pub mod tree;
 pub mod print;
 use self::tree::{DirectoryNode, FileNode, FSNode};
 
-pub fn read_recursive(path: &String) -> FSNode {
+pub fn read_recursive(path: &String, ignore_dotfiles: bool) -> FSNode {
     let path = fs::canonicalize(Path::new(&path)).unwrap();
     let mut node = DirectoryNode::new(path.file_name().unwrap().to_str().unwrap().to_string());
 
@@ -14,6 +14,10 @@ pub fn read_recursive(path: &String) -> FSNode {
         let entry = entry.unwrap();
         let meta = entry.metadata().unwrap();
         let name = entry.file_name().to_str().unwrap().to_string();
+
+        if ignore_dotfiles && name.starts_with(".") {
+            continue;
+        }
 
         if meta.is_file() {
             node.children.push(FSNode::File(FileNode {
@@ -23,7 +27,7 @@ pub fn read_recursive(path: &String) -> FSNode {
             node.size += meta.len();
         } else if meta.is_dir() {
             let path = entry.path().to_str().unwrap().to_string();
-            let dir = read_recursive(&path);
+            let dir = read_recursive(&path, ignore_dotfiles);
             node.size += dir.size();
             node.children.push(dir);
         }
