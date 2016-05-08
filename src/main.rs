@@ -4,10 +4,14 @@ use clap::Arg;
 mod directory;
 
 fn main() {
-    let matches = clap::App::new(env!("CARGO_PKG_NAME"))
+    // TODO: replace strings duplicated from Cargo.toml once 1.9.0 hits stable
+    //                           env!("CARGO_PKG_NAME")
+    let matches = clap::App::new("treesize")
                       .version(env!("CARGO_PKG_VERSION"))
-                      .author(env!("CARGO_PKG_AUTHORS"))
-                      .about(env!("CARGO_PKG_DESCRIPTION"))
+    //                       env!("CARGO_PKG_DESCRIPTION")
+                      .about("Print directory tree (like GNU tree), sorted by size")
+    //                        env!("CARGO_PKG_AUTHORS")
+                      .author("melak47 <melak47@gmail.com>")
                       .arg(Arg::with_name("DIRECTORY")
                                .help("Directory to list")
                                .index(1)
