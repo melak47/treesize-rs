@@ -17,10 +17,11 @@ pub fn print_tree(tree: &FSNode) {
     // avoid https://github.com/rust-lang/rust/issues/23344
     // by wriring smaller chunks
     // TODO: remove once 1.9 hits stable
-    for line in tabulated.split("\n") {
+    for line in tabulated.split('\n') {
         println!("{}", line);
     }
 }
+
 const SUM: &'static str = "(Σ)";
 const BRANCH: &'static str = "├── ";
 const LAST_BRANCH: &'static str = "└── ";
