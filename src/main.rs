@@ -24,6 +24,11 @@ fn main() {
     let ignore_dotfiles = matches.occurrences_of("all") == 0;
     let path = matches.value_of("DIRECTORY").unwrap().to_string();
 
-    let tree = directory::read_recursive(&path, ignore_dotfiles);
-    directory::print::print_tree(&tree);
+    match directory::read_recursive(std::path::Path::new(&path), ignore_dotfiles) {
+        Ok(ref tree) => directory::print::print_tree(&tree),
+        Err(e) => {
+            println!("{}", e);
+            std::process::exit(1);
+        }
+    }
 }
