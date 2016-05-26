@@ -8,18 +8,13 @@ use super::tree::FSNode;
 pub fn print_tree(tree: &FSNode) {
     let mut tw = TabWriter::new(Vec::new());
 
-    print_tree_impl(&tree, &mut tw, "");
+    print_tree_impl(tree, &mut tw, "");
 
     tw.flush().unwrap();
     let bytes = tw.unwrap();
     let tabulated = String::from_utf8_lossy(&bytes);
 
-    // avoid https://github.com/rust-lang/rust/issues/23344
-    // by wriring smaller chunks
-    // TODO: remove once 1.9 hits stable
-    for line in tabulated.split('\n') {
-        println!("{}", line);
-    }
+	print!("{}", tabulated);
 }
 
 const SUM: &'static str = "(Σ)";
@@ -55,7 +50,7 @@ fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &
         write!(&mut tw, "{}{}", prefix, branch).unwrap();
 
         let nested_prefix = format!("{}{}", prefix, nested);
-        print_tree_impl(&item, &mut tw, &nested_prefix);
+        print_tree_impl(item, &mut tw, &nested_prefix);
     }
 }
 
