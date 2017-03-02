@@ -51,7 +51,7 @@ macro_rules! try_path {
     }
 }
 
-pub fn read_recursive(path: &Path, ignore_dotfiles: bool) -> Result<FSNode, ReadDirError> {
+pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool) -> Result<FSNode, ReadDirError> {
     let name = path.file_name().unwrap_or(path.as_os_str()).to_string_lossy().to_string();
     let mut node = DirectoryNode::new(name);
 
@@ -63,8 +63,14 @@ pub fn read_recursive(path: &Path, ignore_dotfiles: bool) -> Result<FSNode, Read
         if ignore_dotfiles && name.starts_with('.') {
             continue;
         }
-
-        let meta = try_path!(entry.metadata(), path);
+        
+        let meta = if follow_symlinks {
+            // does traverse symlinks
+            try_path!(fs::metadata(&path), path)
+        } else {
+            // does not traverse symlinks, like fs::symlink_metadata
+            try_path!(entry.metadata(), &path) 
+        };
 
         if meta.is_file() {
             node.children.push(FSNode::File(FileNode {
@@ -73,7 +79,7 @@ pub fn read_recursive(path: &Path, ignore_dotfiles: bool) -> Result<FSNode, Read
             }));
             node.size += meta.len();
         } else if meta.is_dir() {
-            let dir = try!(read_recursive(&path, ignore_dotfiles));
+            let dir = try!(read_recursive(&path, ignore_dotfiles, follow_symlinks));
             node.size += dir.size();
             node.children.push(dir);
         }
