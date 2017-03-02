@@ -7,9 +7,10 @@
 Linux: [![linux.build.badge]][linux.build.link]
 Windows: [![windows.build.badge]][windows.build.link]
 
-Commandline utility that lists a directory tree (like GNU tree) with file and directory sizes, sorted in descending order by size.
+Commandline utility that lists a directory tree (similar to `tree` on windows, linux and other systems) with file and directory sizes, sorted in descending order by size.
 
 Example output:
+
 ```
 > treesize
 .                              15.5  KB  (Σ)
@@ -27,7 +28,12 @@ Example output:
 └── Cargo.toml                 285   B
 ```
 
+By default, dot-files and symlinks are ignored. However, both can be turned on invidually:
 
+```
+-a    List all files (including dotfiles)
+-L    Follow any symbolic links encountered
+```
 
 [crate.badge]: https://img.shields.io/crates/v/treesize.svg?maxAge=2592000?style=plastic
 [crate.link]: https://crates.io/crates/treesize
@@ -35,7 +41,7 @@ Example output:
 [license.badge]: https://img.shields.io/crates/l/treesize.svg?maxAge=2592000?style=plastic
 [license.link]: https://github.com/melak47/treesize-rs/blob/master/LICENSE
 
-[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.2.1.svg?maxAge=2592000?style=plastic
+[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.3.0.svg?maxAge=2592000?style=plastic
 [commits.link]: https://github.com/melak47/treesize-rs
 
 [linux.build.badge]: https://img.shields.io/travis/melak47/treesize-rs/master.svg?maxAge=2592000?style=plastic

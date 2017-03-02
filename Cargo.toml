@@ -1,8 +1,8 @@
 [package]
 name = "treesize"
-version = "0.2.1"
+version = "0.3.0"
 authors = [ "melak47 <melak47@gmail.com>" ]
-description = "Print directory tree (like GNU tree), sorted by size"
+description = "List directory tree, sorted by size"
 repository = "https://github.com/melak47/treesize-rs"
 license = "MIT"
 
