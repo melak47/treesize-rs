@@ -5,10 +5,10 @@ use self::tabwriter::TabWriter;
 
 use super::tree::FSNode;
 
-pub fn print_tree(tree: &FSNode) {
+pub fn print_tree(tree: &FSNode, max_depth: i64) {
     let mut tw = TabWriter::new(Vec::new());
 
-    print_tree_impl(tree, &mut tw, "");
+    print_tree_impl(tree, &mut tw, "", 0, max_depth);
 
     tw.flush().unwrap();
     let bytes = tw.unwrap();
@@ -23,8 +23,7 @@ const LAST_BRANCH: &'static str = "└── ";
 const INDENT: &'static str = "    ";
 const NESTED_INDENT: &'static str = "│   ";
 
-fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &str) {
-
+fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &str, depth: i64, max_depth: i64) {
     let sum_suffix = if node.is_dir() {
         SUM
     } else {
@@ -39,18 +38,20 @@ fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &
              )
         .unwrap();
 
-    for (idx, item) in node.children().enumerate() {
-        let last = idx == (node.children().count() - 1);
-        let (branch, nested) = if last {
-            (LAST_BRANCH, INDENT)
-        } else {
-            (BRANCH, NESTED_INDENT)
-        };
+    if max_depth < 0 || max_depth >= depth {
+        for (idx, item) in node.children().enumerate() {
+            let last = idx == (node.children().count() - 1);
+            let (branch, nested) = if last {
+                (LAST_BRANCH, INDENT)
+            } else {
+                (BRANCH, NESTED_INDENT)
+            };
 
-        write!(&mut tw, "{}{}", prefix, branch).unwrap();
+            write!(&mut tw, "{}{}", prefix, branch).unwrap();
 
-        let nested_prefix = format!("{}{}", prefix, nested);
-        print_tree_impl(item, &mut tw, &nested_prefix);
+            let nested_prefix = format!("{}{}", prefix, nested);
+            print_tree_impl(item, &mut tw, &nested_prefix, depth + 1, max_depth);
+        }
     }
 }
 
