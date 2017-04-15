@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::{error, fmt, fs, io};
 use std::path::{Path, PathBuf};
+use std::io::Write;
 
 pub mod tree;
 pub mod print;
@@ -20,7 +21,7 @@ impl fmt::Display for ReadDirError {
         match *self {
             ReadDirError::IoError { ref err, ref path } => {
                 write!(f,
-                       "Error reading directory {:?}, caused by I/O error: {}",
+                       "Error reading {:?}, caused by I/O error: {}",
                        path,
                        err)
             }
@@ -31,12 +32,14 @@ impl fmt::Display for ReadDirError {
 impl error::Error for ReadDirError {
     fn description(&self) -> &str {
         match *self {
-            ReadDirError::IoError { .. } => "reading directory failed with I/O error",
+            ReadDirError::IoError { ref err, .. } => err.description(),
         }
     }
 
     fn cause(&self) -> Option<&error::Error> {
-        None
+        match *self {
+            ReadDirError::IoError { ref err, .. } => Some(err),
+        }
     }
 }
 
@@ -63,13 +66,13 @@ pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool)
         if ignore_dotfiles && name.starts_with('.') {
             continue;
         }
-        
+
         let meta = if follow_symlinks {
             // does traverse symlinks
             try_path!(fs::metadata(&path), path)
         } else {
             // does not traverse symlinks, like fs::symlink_metadata
-            try_path!(entry.metadata(), &path) 
+            try_path!(entry.metadata(), &path)
         };
 
         if meta.is_file() {
@@ -79,9 +82,13 @@ pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool)
             }));
             node.size += meta.len();
         } else if meta.is_dir() {
-            let dir = try!(read_recursive(&path, ignore_dotfiles, follow_symlinks));
-            node.size += dir.size();
-            node.children.push(dir);
+            match read_recursive(&path, ignore_dotfiles, follow_symlinks) {
+                Ok(dir) => {
+                    node.size += dir.size();
+                    node.children.push(dir);
+                }
+                Err(err) => try_path!(writeln!(io::stderr(), "{}", err), Path::new("stderr")),
+            }
         }
     }
 
