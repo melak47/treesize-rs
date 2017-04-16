@@ -31,11 +31,5 @@ fn main() {
     let max_depth = i64::from_str(matches.value_of("max-depth").unwrap()).unwrap();
     let path = matches.value_of("DIRECTORY").unwrap().to_string();
 
-    match directory::read_recursive(std::path::Path::new(&path), ignore_dotfiles, follow_symlinks) {
-        Ok(ref tree) => directory::print::print_tree(tree, max_depth),
-        Err(e) => {
-            println!("{}", e);
-            std::process::exit(1);
-        }
-    }
+    directory::print::print_tree(&directory::read_recursive(std::path::Path::new(&path), ignore_dotfiles, follow_symlinks), max_depth);
 }
