@@ -1,6 +1,6 @@
-#[macro_use]
 extern crate clap;
 use clap::Arg;
+use std::str::FromStr;
 mod directory;
 
 fn main() {
@@ -18,14 +18,21 @@ fn main() {
                             .arg(Arg::with_name("follow-symlinks")
                                      .help("Follow any symbolic links encountered")
                                      .short("L"))
+                            .arg(Arg::with_name("max-depth")
+                                     .help("Maximal directory depth to recurse, or -1 for infinite")
+                                     .short("d")
+                                     .default_value("0")
+                                     .takes_value(true)
+                                     .validator(|s| i64::from_str(&s).map_err(|e| format!("{} is not a valid integer: {}", s, e)).map(|_| ())))
                             .get_matches();
 
-    let ignore_dotfiles = matches.occurrences_of("all") == 0;
-    let follow_symlinks = matches.occurrences_of("follow-symlinks") > 0;
+    let ignore_dotfiles = !matches.is_present("all");
+    let follow_symlinks = matches.is_present("follow-symlinks");
+    let max_depth = i64::from_str(matches.value_of("max-depth").unwrap()).unwrap();
     let path = matches.value_of("DIRECTORY").unwrap().to_string();
 
     match directory::read_recursive(std::path::Path::new(&path), ignore_dotfiles, follow_symlinks) {
-        Ok(ref tree) => directory::print::print_tree(tree),
+        Ok(ref tree) => directory::print::print_tree(tree, max_depth),
         Err(e) => {
             println!("{}", e);
             std::process::exit(1);
