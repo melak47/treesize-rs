@@ -27,7 +27,7 @@ You can use these options to tweak the output listing (traversal of the tree is 
 -e <max-entries>        Maximum number of entries to display per directory, or -1 for infinite [default: 5]
 ```
 
-For example: 
+For example:
 
 ```
 > treesize -d2 -e3
@@ -66,7 +66,7 @@ Dot-files and symlinks are ignored unless you use these flags:
 [license.badge]: https://img.shields.io/crates/l/treesize.svg?maxAge=2592000?style=plastic
 [license.link]: https://github.com/melak47/treesize-rs/blob/master/LICENSE
 
-[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.3.0.svg?maxAge=2592000?style=plastic
+[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.4.0.svg?maxAge=2592000?style=plastic
 [commits.link]: https://github.com/melak47/treesize-rs
 
 [linux.build.badge]: https://img.shields.io/travis/melak47/treesize-rs/master.svg?maxAge=2592000?style=plastic
