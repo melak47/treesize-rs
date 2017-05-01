@@ -11,7 +11,7 @@ pub fn print_tree(tree: &FSNode, max_depth: i64, max_dir_entries: i64) {
     print_tree_impl(tree, &mut tw, "", 0, max_depth, max_dir_entries);
 
     tw.flush().unwrap();
-    let bytes = tw.unwrap();
+    let bytes = tw.into_inner().unwrap();
     let tabulated = String::from_utf8_lossy(&bytes);
 
 	print!("{}", tabulated);
