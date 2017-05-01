@@ -7,28 +7,53 @@
 Linux: [![linux.build.badge]][linux.build.link]
 Windows: [![windows.build.badge]][windows.build.link]
 
-Commandline utility that lists a directory tree (similar to `tree` on windows, linux and other systems) with file and directory sizes, sorted in descending order by size.
-
-Example output:
+`treesize` is a small command-line utility for listing a directory tree sorted by size. It's main goal is to quickly provide an overview of what is taking up the most space in a tree, so by default it will only list the 5 largest entries in the specified directory (and summarize the rest):
 
 ```
 > treesize
-.                              15.5  KB  (Σ)
-├── src                        6.5   KB  (Σ)
-│   ├── directory              5.4   KB  (Σ)
-│   │   ├── mod.rs             2.3   KB
-│   │   ├── print.rs           1.9   KB
-│   │   └── tree.rs            1.2   KB
-│   └── main.rs                1.1   KB
-├── appveyor_rust_install.ps1  2.7   KB
-├── README.md                  2.2   KB
-├── Cargo.lock                 1.6   KB
-├── appveyor.yml               1.1   KB
-├── LICENSE                    1.1   KB
-└── Cargo.toml                 285   B
+.                              201.5  MB  (Σ)
+├── target                     201.5  MB  (Σ)
+├── src                        8.6    KB  (Σ)
+├── Cargo.lock                 4.7    KB
+├── appveyor_rust_install.ps1  2.7    KB
+├── README.md                  2.1    KB
+└── ...                        2.4    KB  (Σ)
 ```
 
-By default, dot-files and symlinks are ignored. However, both can be turned on invidually:
+You can use these options to tweak the output listing (traversal of the tree is not affected):
+
+```
+-d <max-depth>          Maximal directory depth to recurse, or -1 for infinite [default: 0]
+-e <max-entries>        Maximum number of entries to display per directory, or -1 for infinite [default: 5]
+```
+
+For example: 
+
+```
+> treesize -d2 -e3
+.                         201.5  MB  (Σ)
+├── target                201.5  MB  (Σ)
+│   ├── debug             137.5  MB  (Σ)
+│   │   ├── deps          131.6  MB  (Σ)
+│   │   ├── treesize.exe  3.1    MB
+│   │   ├── build         2.8    MB  (Σ)
+│   │   └── ...           260    B   (Σ)
+│   └── release           64.0   MB  (Σ)
+│       ├── deps          60.7   MB  (Σ)
+│       ├── build         2.5    MB  (Σ)
+│       ├── treesize.exe  800.0  KB
+│       └── ...           262    B   (Σ)
+├── src                   8.6    KB  (Σ)
+│   ├── directory         6.1    KB  (Σ)
+│   │   ├── print.rs      2.5    KB
+│   │   ├── mod.rs        2.4    KB
+│   │   └── tree.rs       1.2    KB
+│   └── main.rs           2.5    KB
+├── Cargo.lock            4.7    KB
+└── ...                   7.2    KB  (Σ)
+```
+
+Dot-files and symlinks are ignored unless you use these flags:
 
 ```
 -a    List all files (including dotfiles)
