@@ -5,10 +5,12 @@ use std::{fs, io};
 
 pub mod tree;
 pub mod print;
+pub mod filesystem;
 
 use self::tree::{DirectoryNode, FileNode, FSNode};
+use self::filesystem::FilesystemBehaviour;
 
-pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool) -> FSNode {
+pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool, fs_behav: FilesystemBehaviour) -> FSNode {
     let name = path.file_name().unwrap_or(path.as_os_str()).to_string_lossy().to_string();
     let mut node = DirectoryNode::new(name);
 
@@ -50,9 +52,11 @@ pub fn read_recursive(path: &Path, ignore_dotfiles: bool, follow_symlinks: bool)
                     }));
                     node.size += meta.len();
                 } else if meta.is_dir() {
-                    let dir = read_recursive(&path, ignore_dotfiles, follow_symlinks);
-                    node.size += dir.size();
-                    node.children.push(dir);
+                    if let Some(new_fs_behav) = fs_behav.next_level(&meta) {
+                        let dir = read_recursive(&path, ignore_dotfiles, follow_symlinks, new_fs_behav);
+                        node.size += dir.size();
+                        node.children.push(dir);
+                    }
                 }
             }
         }

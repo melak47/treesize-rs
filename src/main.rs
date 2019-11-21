@@ -26,6 +26,9 @@ fn main() {
                             .arg(Arg::with_name("follow-symlinks")
                                      .help("Follow any symbolic links encountered")
                                      .short("L"))
+                            .arg(Arg::with_name("one-file-system")
+                                     .help("Stay in the same file system when listing")
+                                     .long("one-file-system"))
                             .arg(Arg::with_name("max-depth")
                                      .help("Maximal directory depth to recurse, or -1 for infinite")
                                      .short("d")
@@ -42,9 +45,18 @@ fn main() {
 
     let ignore_dotfiles = !matches.is_present("all");
     let follow_symlinks = matches.is_present("follow-symlinks");
+    let one_file_system = matches.is_present("one-file-system");
     let max_depth = i64::from_str(matches.value_of("max-depth").unwrap()).unwrap();
     let max_entries = i64::from_str(matches.value_of("max-entries").unwrap()).unwrap();
     let path = matches.value_of("DIRECTORY").unwrap();
 
-    directory::print::print_tree(&directory::read_recursive(std::path::Path::new(&path), ignore_dotfiles, follow_symlinks), max_depth, max_entries);
+    directory::print::print_tree(&directory::read_recursive(std::path::Path::new(&path),
+                                                            ignore_dotfiles,
+                                                            follow_symlinks,
+                                                            if one_file_system {
+                                                                directory::filesystem::FilesystemBehaviour::OneFileSystemRoot
+                                                            } else {
+                                                                directory::filesystem::FilesystemBehaviour::Traverse
+                                                            }),
+                                 max_depth, max_entries);
 }
