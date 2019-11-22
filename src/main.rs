@@ -41,6 +41,13 @@ fn main() {
                                      .default_value("5")
                                      .takes_value(true)
                                      .validator(validate_int))
+                            .arg(Arg::with_name("size-format")
+                                     .help("How to format node sizes: h/human – powers of 1024, H/si – powers of 1000, r/raw – no folding")
+                                     .short("s")
+                                     .default_value("human")
+                                     .takes_value(true)
+                                     .possible_values(directory::print::SizeFormat::VALUES)
+                                     .hide_possible_values(true))
                             .get_matches();
 
     let ignore_dotfiles = !matches.is_present("all");
@@ -48,6 +55,7 @@ fn main() {
     let one_file_system = matches.is_present("one-file-system");
     let max_depth = i64::from_str(matches.value_of("max-depth").unwrap()).unwrap();
     let max_entries = i64::from_str(matches.value_of("max-entries").unwrap()).unwrap();
+    let size_format = directory::print::SizeFormat::from_str(matches.value_of("size-format").unwrap()).unwrap();
     let path = matches.value_of("DIRECTORY").unwrap();
 
     directory::print::print_tree(&directory::read_recursive(std::path::Path::new(&path),
@@ -58,5 +66,5 @@ fn main() {
                                                             } else {
                                                                 directory::filesystem::FilesystemBehaviour::Traverse
                                                             }),
-                                 max_depth, max_entries);
+                                 max_depth, max_entries, size_format);
 }

@@ -1,14 +1,15 @@
 extern crate tabwriter;
 
 use std::io::Write;
+use std::str::FromStr;
 use self::tabwriter::TabWriter;
 
 use super::tree::FSNode;
 
-pub fn print_tree(tree: &FSNode, max_depth: i64, max_dir_entries: i64) {
+pub fn print_tree(tree: &FSNode, max_depth: i64, max_dir_entries: i64, size_format: SizeFormat) {
     let mut tw = TabWriter::new(Vec::new());
 
-    print_tree_impl(tree, &mut tw, "", 0, max_depth, max_dir_entries);
+    print_tree_impl(tree, &mut tw, "", 0, max_depth, max_dir_entries, size_format);
 
     tw.flush().unwrap();
     let bytes = tw.into_inner().unwrap();
@@ -23,7 +24,7 @@ const LAST_BRANCH: &'static str = "└── ";
 const INDENT: &'static str = "    ";
 const NESTED_INDENT: &'static str = "│   ";
 
-fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &str, depth: i64, max_depth: i64, max_dir_entries: i64) {
+fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &str, depth: i64, max_depth: i64, max_dir_entries: i64, size_format: SizeFormat) {
     let sum_suffix = if node.is_dir() {
         SUM
     } else {
@@ -33,7 +34,7 @@ fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &
     writeln!(&mut tw,
              "{}\t{}\t{}",
              node.name(),
-             human_readable_byte_size(node.size()),
+             size_format.human_readable_byte_size(node.size()),
              sum_suffix,
              )
         .unwrap();
@@ -52,12 +53,12 @@ fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &
                 write!(&mut tw, "{}{}", prefix, branch).unwrap();
 
                 let nested_prefix = format!("{}{}", prefix, nested);
-                print_tree_impl(item, &mut tw, &nested_prefix, depth + 1, max_depth, max_dir_entries);
+                print_tree_impl(item, &mut tw, &nested_prefix, depth + 1, max_depth, max_dir_entries, size_format);
             } else {
                 size_not_shown += item.size();
 
                 if last {
-                    let _ = writeln!(&mut tw, "{}{}...\t{}\t{}", prefix, branch, human_readable_byte_size(size_not_shown), SUM);
+                    let _ = writeln!(&mut tw, "{}{}...\t{}\t{}", prefix, branch, size_format.human_readable_byte_size(size_not_shown), SUM);
                 }
             }
 
@@ -65,16 +66,51 @@ fn print_tree_impl<T: Write>(node: &FSNode, mut tw: &mut TabWriter<T>, prefix: &
     }
 }
 
-fn human_readable_byte_size(bytes: u64) -> String {
-    if bytes < 1024 {
-        return format!("{}\tB", bytes);
+#[derive(Copy, Clone)]
+pub enum SizeFormat {
+    Human,
+    Si,
+    Raw,
+}
+
+impl FromStr for SizeFormat {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<SizeFormat, ()> {
+        match s {
+            "h" | "human" => Ok(SizeFormat::Human),
+            "H" | "si" => Ok(SizeFormat::Si),
+            "r" | "raw" => Ok(SizeFormat::Raw),
+            _ => Err(()),
+        }
     }
+}
 
-    let metric_prefix = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+impl SizeFormat {
+    pub const VALUES: &'static [&'static str] = &["h", "human", "H", "si", "r", "raw"];
 
-    let which = log2(bytes) / 10;
-    let decimal = bytes as f64 / 1024.0_f64.powf(which as f64);
-    return format!("{:.1}\t{}", decimal, metric_prefix[which as usize]);
+    pub fn human_readable_byte_size(self, bytes: u64) -> String {
+        static HUMAN_PREFIX: &[&str] = &["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
+        static SI_PREFIX: &[&str] = &["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+
+        let (power, prefix) = match self {
+            SizeFormat::Human => (1024, HUMAN_PREFIX),
+            SizeFormat::Si => (1000, SI_PREFIX),
+            SizeFormat::Raw => return raw_format(bytes),
+        };
+
+        if bytes < power {
+            return raw_format(bytes);
+        }
+
+        let which = log2(bytes) / 10;
+        let decimal = bytes as f64 / (power as f64).powf(which as f64);
+        return format!("{:.1}\t{}", decimal, prefix[which as usize]);
+    }
+}
+
+fn raw_format(bytes: u64) -> String {
+    format!("{}\tB", bytes)
 }
 
 fn log2(mut x: u64) -> u64 {
