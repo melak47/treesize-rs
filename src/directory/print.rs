@@ -102,17 +102,16 @@ impl fmt::Display for SizeFormatter {
         static HUMAN_PREFIX: &[&str] = &["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
         static SI_PREFIX: &[&str] = &["B", "KB", "MB", "GB", "TB", "PB", "EB"];
 
-        let (power, prefix) = match self.0 {
-            SizeFormat::Human => (1024, HUMAN_PREFIX),
-            SizeFormat::Si => (1000, SI_PREFIX),
+        let (power, prefix, which) = match self.0 {
+            SizeFormat::Human => (1024, HUMAN_PREFIX, log2(self.1) / 10),
+            SizeFormat::Si => (1000, SI_PREFIX, log10(self.1) / 3),
             SizeFormat::Raw => return self.fmt_raw(f),
         };
 
-        if self.1 < power {
+        if which == 0 {
             return self.fmt_raw(f);
         }
 
-        let which = log2(self.1) / 10;
         let decimal = self.1 as f64 / (power as f64).powf(which as f64);
         write!(f, "{:.1}\t{}", decimal, prefix[which as usize])
     }
@@ -129,6 +128,16 @@ fn log2(mut x: u64) -> u64 {
 
     while (x >> 1) > 0 {
         x >>= 1;
+        n += 1;
+    }
+    n
+}
+
+fn log10(mut x: u64) -> u64 {
+    let mut n: u64 = 0;
+
+    while (x / 10) > 0 {
+        x /= 10;
         n += 1;
     }
     n
