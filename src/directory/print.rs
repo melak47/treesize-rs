@@ -1,5 +1,6 @@
 extern crate tabwriter;
 
+use std::fmt;
 use std::io::Write;
 use std::str::FromStr;
 use self::tabwriter::TabWriter;
@@ -89,28 +90,38 @@ impl FromStr for SizeFormat {
 impl SizeFormat {
     pub const VALUES: &'static [&'static str] = &["h", "human", "H", "si", "r", "raw"];
 
-    pub fn human_readable_byte_size(self, bytes: u64) -> String {
-        static HUMAN_PREFIX: &[&str] = &["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
-        static SI_PREFIX: &[&str] = &["B", "KB", "MB", "GB", "TB", "PB", "EB"];
-
-        let (power, prefix) = match self {
-            SizeFormat::Human => (1024, HUMAN_PREFIX),
-            SizeFormat::Si => (1000, SI_PREFIX),
-            SizeFormat::Raw => return raw_format(bytes),
-        };
-
-        if bytes < power {
-            return raw_format(bytes);
-        }
-
-        let which = log2(bytes) / 10;
-        let decimal = bytes as f64 / (power as f64).powf(which as f64);
-        return format!("{:.1}\t{}", decimal, prefix[which as usize]);
+    pub fn human_readable_byte_size(self, bytes: u64) -> SizeFormatter {
+        SizeFormatter(self, bytes)
     }
 }
 
-fn raw_format(bytes: u64) -> String {
-    format!("{}\tB", bytes)
+pub struct SizeFormatter(SizeFormat, u64);
+
+impl fmt::Display for SizeFormatter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        static HUMAN_PREFIX: &[&str] = &["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
+        static SI_PREFIX: &[&str] = &["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+
+        let (power, prefix) = match self.0 {
+            SizeFormat::Human => (1024, HUMAN_PREFIX),
+            SizeFormat::Si => (1000, SI_PREFIX),
+            SizeFormat::Raw => return self.fmt_raw(f),
+        };
+
+        if self.1 < power {
+            return self.fmt_raw(f);
+        }
+
+        let which = log2(self.1) / 10;
+        let decimal = self.1 as f64 / (power as f64).powf(which as f64);
+        write!(f, "{:.1}\t{}", decimal, prefix[which as usize])
+    }
+}
+
+impl SizeFormatter {
+    fn fmt_raw(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}\tB", self.1)
+    }
 }
 
 fn log2(mut x: u64) -> u64 {
