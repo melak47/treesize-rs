@@ -27,7 +27,7 @@ pub enum FSNode {
 }
 
 impl FSNode {
-    pub fn children<'a>(&'a self) -> Box<iter::Iterator<Item = &FSNode> + 'a> {
+    pub fn children<'a>(&'a self) -> Box<dyn iter::Iterator<Item = &FSNode> + 'a> {
         match *self {
             FSNode::Directory(ref d) => Box::new(d.children.iter()),
             FSNode::File(_) => Box::new(iter::empty()),
