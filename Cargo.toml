@@ -1,6 +1,6 @@
 [package]
 name = "treesize"
-version = "0.4.0"
+version = "0.5.0"
 authors = [ "melak47 <melak47@gmail.com>" ]
 description = "List directory tree, sorted by size"
 repository = "https://github.com/melak47/treesize-rs"

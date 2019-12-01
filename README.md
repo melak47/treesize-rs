@@ -69,7 +69,7 @@ Flags that affect the traversal include:
 [license.badge]: https://img.shields.io/crates/l/treesize.svg?maxAge=2592000?style=plastic
 [license.link]: https://github.com/melak47/treesize-rs/blob/master/LICENSE
 
-[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.4.0.svg?maxAge=2592000?style=plastic
+[commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.5.0.svg?maxAge=2592000?style=plastic
 [commits.link]: https://github.com/melak47/treesize-rs
 
 [build.badge]: https://img.shields.io/travis/melak47/treesize-rs/master.svg?maxAge=2592000?style=plastic
