@@ -4,20 +4,19 @@
 [![license.badge]][license.link]
 [![commits.badge]][commits.link]
 
-Linux: [![linux.build.badge]][linux.build.link]
-Windows: [![windows.build.badge]][windows.build.link]
+CI status: [![build.badge]][build.link]
 
 `treesize` is a small command-line utility for listing a directory tree sorted by size. It's main goal is to quickly provide an overview of what is taking up the most space in a tree, so by default it will only list the 5 largest entries in the specified directory (and summarize the rest):
 
 ```
 > treesize
-.                              201.5  MB  (Σ)
-├── target                     201.5  MB  (Σ)
-├── src                        8.6    KB  (Σ)
-├── Cargo.lock                 4.7    KB
-├── appveyor_rust_install.ps1  2.7    KB
-├── README.md                  2.1    KB
-└── ...                        2.4    KB  (Σ)
+.               99.4  MiB  (Σ)
+├── target      99.4  MiB  (Σ)
+├── src         13.4  KiB  (Σ)
+├── Cargo.lock  4.9   KiB
+├── README.md   3.2   KiB
+├── LICENSE     1.1   KiB
+└── ...         271   B    (Σ)
 ```
 
 You can use these options to tweak the output listing (traversal of the tree is not affected):
@@ -25,39 +24,43 @@ You can use these options to tweak the output listing (traversal of the tree is 
 ```
 -d <max-depth>          Maximal directory depth to recurse, or -1 for infinite [default: 0]
 -e <max-entries>        Maximum number of entries to display per directory, or -1 for infinite [default: 5]
+-s <size-format>        How to format node sizes: h/human – powers of 1024, H/si – powers of 1000, r/raw – no
+                        folding [default: human]
 ```
 
 For example:
 
 ```
 > treesize -d2 -e3
-.                         201.5  MB  (Σ)
-├── target                201.5  MB  (Σ)
-│   ├── debug             137.5  MB  (Σ)
-│   │   ├── deps          131.6  MB  (Σ)
-│   │   ├── treesize.exe  3.1    MB
-│   │   ├── build         2.8    MB  (Σ)
-│   │   └── ...           260    B   (Σ)
-│   └── release           64.0   MB  (Σ)
-│       ├── deps          60.7   MB  (Σ)
-│       ├── build         2.5    MB  (Σ)
-│       ├── treesize.exe  800.0  KB
-│       └── ...           262    B   (Σ)
-├── src                   8.6    KB  (Σ)
-│   ├── directory         6.1    KB  (Σ)
-│   │   ├── print.rs      2.5    KB
-│   │   ├── mod.rs        2.4    KB
-│   │   └── tree.rs       1.2    KB
-│   └── main.rs           2.5    KB
-├── Cargo.lock            4.7    KB
-└── ...                   7.2    KB  (Σ)
+.                          99.4   MiB  (Σ)
+├── target                 99.4   MiB  (Σ)
+│   ├── debug              75.4   MiB  (Σ)
+│   │   ├── deps           53.4   MiB  (Σ)
+│   │   ├── treesize.pdb   10.1   MiB
+│   │   ├── build          5.0    MiB  (Σ)
+│   │   └── ...            6.9    MiB  (Σ)
+│   └── release            24.0   MiB  (Σ)
+│       ├── deps           18.0   MiB  (Σ)
+│       ├── build          3.6    MiB  (Σ)
+│       ├── treesize.pdb   1.6    MiB
+│       └── ...            756.7  KiB  (Σ)
+├── src                    13.4   KiB  (Σ)
+│   ├── directory          9.4    KiB  (Σ)
+│   │   ├── print.rs       4.0    KiB
+│   │   ├── mod.rs         2.6    KiB
+│   │   ├── filesystem.rs  1.6    KiB
+│   │   └── ...            1.2    KiB  (Σ)
+│   └── main.rs            4.0    KiB
+├── Cargo.lock             4.9    KiB
+└── ...                    4.5    KiB  (Σ)
 ```
 
-Dot-files and symlinks are ignored unless you use these flags:
+Flags that affect the traversal include:
 
 ```
--a    List all files (including dotfiles)
--L    Follow any symbolic links encountered
+-a                   List all files (including dotfiles)
+-L                   Follow any symbolic links encountered
+--one-file-system    Stay in the same file system when listing
 ```
 
 [crate.badge]: https://img.shields.io/crates/v/treesize.svg?maxAge=2592000?style=plastic
@@ -69,8 +72,5 @@ Dot-files and symlinks are ignored unless you use these flags:
 [commits.badge]: https://img.shields.io/github/commits-since/melak47/treesize-rs/v0.4.0.svg?maxAge=2592000?style=plastic
 [commits.link]: https://github.com/melak47/treesize-rs
 
-[linux.build.badge]: https://img.shields.io/travis/melak47/treesize-rs/master.svg?maxAge=2592000?style=plastic
-[linux.build.link]: https://travis-ci.org/melak47/treesize-rs
-
-[windows.build.badge]: https://ci.appveyor.com/api/projects/status/3as532ws1ib9re2x/branch/master?svg=true
-[windows.build.link]: https://ci.appveyor.com/project/melak47/treesize-rs/branch/master
+[build.badge]: https://img.shields.io/travis/melak47/treesize-rs/master.svg?maxAge=2592000?style=plastic
+[build.link]: https://travis-ci.org/melak47/treesize-rs
